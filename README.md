@@ -19,6 +19,10 @@ El contenedor puede ser personalizado según las distintas variantes explicadas 
 
 \* El puerto 80 es solo para redireccionar al 443.
 
+## Prerequisitos
+
+Para que este script funcione es necesario tener instalado Docker siguiendo las soguientes instruciones. [Install Docker](https://docs.docker.com/engine/install/)
+
 ## Instrucciones para el despliegue, creación de los servicios y migración de los datos
 
 Las siguientes acciones se deben realizar conectados a la VPN de Gestión de la plataforma. 
