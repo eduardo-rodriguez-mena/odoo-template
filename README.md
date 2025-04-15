@@ -52,10 +52,10 @@ Si la verificación anterior del sitio migrado fue satisfactoria, entonces podem
 
 1. Eliminar el/los registros asociados al sitio/servicio en la herramienta DNS del dominio.
 2. Creamos el Nombre público en el Tunnel de CloudFlare correspondiente que apunte al puerto HTTPs de la IP privada del servidor/contenedor que se creo.
-2.1. En Opciones Avanzadas habilitamos “ No TLS Verify”  en las opciones de configuración de TLS esto está pendiente por que Cloudflare no esta reconociendo los certificados Letsencrypt por esta vía (pendiente de resolver en próximas versiones).
-2.2. Habilitamos el acceso HTTP2 a esta publicación  en las opciones de configuración de TLS.
-3. Deshabilitamos la VPN y verificamos que el sitio sea accesible por Internet con el nombre de dominio que le asignamos, en ambos casos no debe haber ningún señalamiento de seguridad.
-4. Si el sitio necesita controlar el acceso al...
+   1. En Opciones Avanzadas habilitamos “ No TLS Verify”  en las opciones de configuración de TLS esto está pendiente por que Cloudflare no esta reconociendo los certificados Letsencrypt por esta vía (pendiente de resolver en próximas versiones).
+    2. Habilitamos el acceso HTTP2 a esta publicación  en las opciones de configuración de TLS.
+4. Deshabilitamos la VPN y verificamos que el sitio sea accesible por Internet con el nombre de dominio que le asignamos, en ambos casos no debe haber ningún señalamiento de seguridad.
+5. Si el sitio necesita controlar el acceso al...
 
 ## Documentación
 
