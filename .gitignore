@@ -1,3 +1,5 @@
 .fuse_hidden*
-**certs/*
-!**certs/ca-certifi*
+**certs/archive*
+**certs/live*
+**certs/renewal*
+!**certs/ca-certificates.crt
