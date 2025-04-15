@@ -1,0 +1,86 @@
+upstream odooserver {
+ server ${ORIGIN_HOST}:${VIRTUAL_PORT_ODOO};
+}
+
+upstream odoochatserver {
+server ${ORIGIN_HOST}:${VIRTUAL_PORT_ODOOCHAT};
+}
+
+#Tamaño máximo de subida de ficheros
+client_max_body_size 4G;
+
+server {
+listen 80;
+listen [::]:80;
+server_name ${VIRTUAL_HOST_P} www.${VIRTUAL_HOST_P};
+  
+
+location / {
+return 301 https://$host$request_uri;
+}
+}
+
+server {
+ listen [::]:443 ssl;
+ listen 443 ssl;
+
+ server_name ${VIRTUAL_HOST_P} www.${VIRTUAL_HOST_P};
+
+
+ #Tamaño máximo de subida de ficheros
+ client_max_body_size 4G;
+     
+ http2 on;
+     ssl_certificate /etc/letsencrypt/live/${VIRTUAL_HOST_P}/fullchain.pem;
+     ssl_certificate_key /etc/letsencrypt/live/${VIRTUAL_HOST_P}/privkey.pem;
+ #    ssl_dhparam /etc/letsencrypt/live/${VIRTUAL_HOST_P}/dhparam.pem;
+     
+     ssl_stapling on;
+     ssl_stapling_verify on;
+     ssl_trusted_certificate /etc/letsencrypt/live/${VIRTUAL_HOST_P}/chain.pem;
+
+     access_log /var/log/nginx/s${VIRTUAL_HOST_P}_odoo_access.log;
+     error_log /var/log/nginx/${VIRTUAL_HOST_P}_odoo_error.log;
+
+     proxy_read_timeout 720s;
+     proxy_connect_timeout 720s;
+     proxy_send_timeout 720s;
+
+     proxy_set_header X-Forwarded-Host $host;
+     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+     proxy_set_header X-Forwarded-Proto $scheme;
+     proxy_set_header X-Real-IP $remote_addr;
+
+     # Redirect longpoll requests to odoo longpolling port
+     location /longpolling {
+        proxy_pass http://odoochatserver;
+     }
+     
+     location /websocket {
+     	proxy_redirect off;
+        proxy_pass http://odoochatserver;
+        # additional set headers
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    
+     location / {
+        proxy_redirect off;
+        proxy_pass http://odooserver;
+     }
+
+     location ~* /web/static/ {
+         proxy_cache_valid 200 90m;
+         proxy_buffering on;
+         expires 864000;
+         proxy_pass http://odooserver;
+     }
+
+     gzip_types text/css text/less text/plain text/xml application/xml application/json application/javascript;
+     gzip on;
+}
+

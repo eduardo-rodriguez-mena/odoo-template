@@ -1,0 +1,69 @@
+version: '3.1'
+services:
+
+  certbot:
+    image: certbot/dns-cloudflare
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./cf_credentials.ini:/root/cloudflare.ini
+    command: >
+      certonly --dns-cloudflare
+      --dns-cloudflare-credentials /root/cloudflare.ini
+      --dns-cloudflare-propagation-seconds 20
+      --email ${LE_EMAIL}
+      --agree-tos --no-eff-email
+      --non-interactive
+      -d ${HOST_NAME} 
+      -d www.${HOST_NAME} ${OTHER_HOST_NAMES}
+      
+  db:
+    image: postgres:${POSTGRES_TAG}
+    restart: always
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${ODOO_DB_PASS}
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db-data:/var/lib/postgresql/data/pgdata
+
+  web:
+    image: odoo:${ODOO_TAG}
+    depends_on:
+      - db
+    restart: always
+    ports:
+      - "127.0.0.1:8069:8069"
+    environment:
+      - HOST=${DB_HOST}
+      - USER=odoo
+      - PASSWORD=${ODOO_DB_PASS}
+    volumes:
+      - web-data:/var/lib/odoo
+      - ./odoo/config:/etc/odoo
+      - ./odoo/addons:/mnt/extra-addons
+      - ./odoo/backups:/mnt/backups
+      - ./odoo/enterprise:/mnt/enterprise
+
+  nginx-proxy:
+    image: nginx
+    depends_on:
+      certbot:
+        condition: service_completed_successfully
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certs:/etc/letsencrypt 
+      - ./templates:/etc/nginx/templates
+    environment:
+      - VIRTUAL_HOST_P=${HOST_NAME}
+      - VIRTUAL_PORT_ODOO=8069
+      - VIRTUAL_PORT_ODOOCHAT=8072
+      - ORIGIN_HOST=web
+
+volumes:
+  web-data:
+  db-data:
+

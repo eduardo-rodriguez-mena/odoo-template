@@ -1,0 +1,49 @@
+version: '3.1'
+services:
+
+  certbot:
+    image: certbot/dns-cloudflare
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./cf_credentials.ini:/root/cloudflare.ini
+    command: >
+      certonly --dns-cloudflare
+      --dns-cloudflare-credentials /root/cloudflare.ini
+      --dns-cloudflare-propagation-seconds 20
+      --email ${LE_EMAIL}
+      --agree-tos --no-eff-email
+      --non-interactive
+      -d ${HOST_NAME}
+      
+  perm:
+    image: bash  
+    depends_on:
+      certbot:
+        condition: service_completed_successfully    
+    volumes:
+      - ./certs:/etc/letsencrypt
+      - ./scripts/init-cert-permision.sh:/init-cert-permision.sh
+    entrypoint: bash /init-cert-permision.sh
+    
+  
+  db:
+    image: postgres:15
+    command: -c ssl=on -c ssl_cert_file=/etc/letsencrypt/live/${HOST_NAME}/fullchain.pem -c ssl_key_file=/etc/letsencrypt/live/${HOST_NAME}/privkey.pem
+    restart: always
+    depends_on:
+      perm:
+        condition: service_completed_successfully
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${ODOO_DB_PASS}
+      - POSTGRES_USER=odoo
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"      
+    volumes:
+      - db-data:/var/lib/postgresql/data/pgdata
+      - ./certs:/etc/letsencrypt    
+      - ./scripts/pg_hba_ssl.sh:/docker-entrypoint-initdb.d/pg_hba_ssl.sh
+
+volumes:
+  db-data:
