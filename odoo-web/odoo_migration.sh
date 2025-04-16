@@ -39,7 +39,7 @@ rm -f ./odoo/backups/*
 
 # Docker-compose UP
 echo '>>>UP Docker-compose: '
-docker-compose up -d
+docker compose up -d
 sleep 30
 
 #Satisfacer dependencias
