@@ -3,6 +3,7 @@ services:
 
   certbot:
     image: certbot/dns-cloudflare
+    network_mode: "host"
     volumes:
       - ./certs:/etc/letsencrypt
       - ./cf_credentials.ini:/root/cloudflare.ini
