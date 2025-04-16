@@ -16,7 +16,7 @@ echo '>>>Comment db_host definition on odoo.conf: '
 #Erase Database Host declaration
 sed -i 's/^db_host/;db_host/g' ./odoo/config/odoo.conf
 #Set Master Pasword
-sed -i s/^admin_passwd = .*/admin_passwd = ${ADMIN_PASSWORD}/ ./odoo/config/odoo.conf
+sed -i s|^admin_passwd = .*|admin_passwd = ${ADMIN_PASSWORD}| ./odoo/config/odoo.conf
 #set  dbfilter
 sed -i s/^dbfilter = .*/dbfilter = ${ODOO_DATABASE}/ ./odoo/config/odoo.conf
 
