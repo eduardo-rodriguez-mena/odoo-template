@@ -44,7 +44,7 @@ sleep 30
 
 #Satisfacer dependencias
 if  [ -n ${ODOO_DEPENDENCIES} ]; then \
-docker container exec -u root ${NEW_PROJECT_NAME}_web_1 bash -c 'apt install -y python3-pip; yes | pip3 install ${ODOO_DEPENDENCIES}'; \
+docker container exec -u root ${NEW_PROJECT_NAME}-web-1 bash -c 'apt install -y python3-pip; yes | pip3 install ${ODOO_DEPENDENCIES}'; \
 fi
 
 #Database & Filestore migration
@@ -71,7 +71,7 @@ curl -k #--resolve ${HOST_NAME}:443:127.0.0.1\
 #sed -i 's/^;addons_path/addons_path/g' ./odoo/config/odoo.conf
 
 #Restart Odoo container with addons
-#docker container restart ${NEW_PROJECT_NAME}_web_1
+#docker container restart ${NEW_PROJECT_NAME}-web-1
 
 
 #Schedule a weekly SSL cert update
