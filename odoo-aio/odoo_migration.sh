@@ -13,7 +13,7 @@ export $(grep -v '^#' .env | xargs)
 
 #Copying Old Docker-Compose Project, clear unknow file on destination
 echo '>>>Copying Old Docker-Compose Project: '
-rsync -av --delete root@${ODOO_ORIGIN_HOST}:${OLD_PROJETC_DIR}/{addons,config,enterprise}  ./odoo/
+rsync --rsh="sshpass -p ${RSYNC_PASSWORD} ssh" -av --delete root@${ODOO_ORIGIN_HOST}:${OLD_PROJETC_DIR}/{addons,config,enterprise}  ./odoo/
 
 ##Rectifying Configuration on config/odoo.conf
 #Comment db_host definition on odoo.conf
